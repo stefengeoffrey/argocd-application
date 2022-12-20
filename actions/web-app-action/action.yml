@@ -1,0 +1,6 @@
+name: "AWS CLI"
+description: "AWS CLI - Github action"
+author: "Geoffrey Scarvell"
+runs:
+  using: 'docker'
+  image: <put docker image tag here to consist of docker repo>
