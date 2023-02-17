@@ -11,7 +11,7 @@ spec:
     namespace: 'cert-manager'
   source:
     path: manifests/devops/cert-manager/overlays/non-prod
-    repoURL: 'https://github.com/stefengeoffrey/B100-devops-argocd-k8-applications.git'
+    repoURL: 'https://github.com/stefengeoffrey/argocd-applications.git'
     targetRevision: HEAD
   project: devops
   syncPolicy:

@@ -11,7 +11,7 @@ spec:
     server: 'https://kubernetes.default.svc'
   source:
     path: manifests/devops/nginx-ingress/overlays/non-prod
-    repoURL: 'https://github.com/stefengeoffrey/B100-devops-argocd-k8-applications.git'
+    repoURL: 'https://github.com/stefengeoffrey/argocd-applications.git'
     targetRevision: HEAD
   project: default
   syncPolicy:

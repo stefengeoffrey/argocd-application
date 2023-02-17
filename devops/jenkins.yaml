@@ -9,7 +9,7 @@ spec:
   project: devops
   source:
     path: manifests/devops/jenkins
-    repoURL: 'https://github.com/stefengeoffrey/B100-devops-argocd-k8-applications.git'
+    repoURL: 'https://github.com/stefengeoffrey/argocd-applications.git'
     targetRevision: HEAD
   destination:
     namespace: kube-system
