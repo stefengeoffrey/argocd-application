@@ -1,0 +1,96 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: kube-proxy
+  Namespacepace: kube-system
+  labels:
+    eks.amazonaws.com/component: kube-proxy
+    k8s-app: kube-proxy
+spec:
+  selector:
+    matchLabels:
+      k8s-app: kube-proxy
+  template:
+    metadata:
+      labels:
+        k8s-app: kube-proxy
+    spec:
+      voluAAAAAAAAAA:
+        - name: varlog
+          hostPath:
+            path: /var/log
+            type: ''
+        - name: xtables-lock
+          hostPath:
+            path: /run/xtables.lock
+            type: FileOrCreate
+        - name: lib-modules
+          hostPath:
+            path: /lib/modules
+            type: ''
+        - name: kubeconfig
+          configMap:
+            name: kube-proxy
+            defaultMode: 420
+        - name: config
+          configMap:
+            name: kube-proxy-config
+            defaultMode: 420
+      containers:
+        - name: kube-proxy
+          image: >-
+            602401143452.dkr.ecr.us-east-2.amazonaws.com/eks/kube-proxy:v1.19.6-eksbuild.2
+          imagePullPolicy: IfNotPresent
+          command:
+            - kube-proxy
+            - '--v=2'
+            - '--config=/var/lib/kube-proxy-config/config'
+          resources:
+            requests:
+              cpu: 100m
+          volumeMounts:
+            - name: varlog
+              mountPath: /var/log
+            - name: xtables-lock
+              mountPath: /run/xtables.lock
+            - name: lib-modules
+              readOnly: true
+              mountPath: /lib/modules
+            - name: kubeconfig
+              mountPath: /var/lib/kube-proxy/
+            - name: config
+              mountPath: /var/lib/kube-proxy-config/
+          securityContext:
+            privileged: true
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      serviceAccountName: kube-proxy
+      serviceAccount: kube-proxy
+      hostNetwork: true
+      securityContext: {}
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/os
+                    operator: In
+                    values:
+                      - linux
+                  - key: kubernetes.io/arch
+                    operator: In
+                    values:
+                      - amd64
+                  - key: eks.amazonaws.com/compute-type
+                    operator: NotIn
+                    values:
+                      - fargate
+      tolerations:
+        - operator: Exists
+      priorityClassName: system-node-critical
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 10%
+  revisionHistoryLimit: 10

@@ -1,0 +1,284 @@
+annotations:
+  artifacthub.io/changes: |
+    - kind: changed
+      description: The minimum supported version for Kubernetes is now v1.19. The Solr Operator is no longer using deprecated APIs, such as networking.k8s.io/v1beta1 for Ingresses.
+      links:
+        - name: Github Issue
+          url: https://github.com/apache/solr-operator/issues/277
+        - name: Github PR
+          url: https://github.com/apache/solr-operator/pull/321
+    - kind: changed
+      description: The Solr Operator has upgraded its Kubebuilder dependency to v3.
+      links:
+        - name: Bug Report Issue
+          url: https://github.com/apache/solr-operator/issues/320
+        - name: Github PR
+          url: https://github.com/apache/solr-operator/pull/321
+    - kind: fixed
+      description: The SolrPrometheusExporter controller now watches for changes in referenced Solr Clouds, so the referenced ZKConnectionString is updated if it changes within the SolrCloud status.
+      links:
+        - name: Bug Report Issue
+          url: https://github.com/apache/solr-operator/issues/325
+        - name: Github PR (Large and almost entirely unrelated)
+          url: https://github.com/apache/solr-operator/pull/321
+    - kind: deprecated
+      description: The legacy backup options (SolrCloud.spec.dataStorage.backupRestoreOptions) have been deprecated. Please use SolrCloud.spec.backupRepositories instead.
+      links:
+        - name: Github Issue
+          url: https://github.com/apache/solr-operator/issues/301
+        - name: Github PR
+          url: https://github.com/apache/solr-operator/pull/302
+        - name: Backup Documentation
+          url: https://apache.github.io/solr-operator/docs/solr-backup/
+    - kind: added
+      description: Introduced the ability to use GCS Backup Repositories with SolrCloud and SolrBackup.
+      links:
+        - name: Github Issue
+          url: https://github.com/apache/solr-operator/issues/301
+        - name: Github PR
+          url: https://github.com/apache/solr-operator/pull/302
+        - name: Backup Documentation
+          url: https://apache.github.io/solr-operator/docs/solr-backup#gcs-backup-repositories
+    - kind: added
+      description: Introduced the ability to use S3 Backup Repositories with SolrCloud and SolrBackup.
+      links:
+        - name: Github Issue
+          url: https://github.com/apache/solr-operator/issues/328
+        - name: Github PR
+          url: https://github.com/apache/solr-operator/pull/345
+        - name: Solr S3 Repository Documentation
+          url: https://solr.apache.org/guide/8_10/making-and-restoring-backups.html#s3backuprepository
+        - name: Backup Documentation
+          url: https://apache.github.io/solr-operator/docs/solr-backup#s3-backup-repositories
+    - kind: added
+      description: Customize the Lifecycle for Solr and PrometheusExporter containers
+      links:
+        - name: Github Issue
+          url: https://github.com/apache/solr-operator/issues/322
+        - name: Github PR
+          url: https://github.com/apache/solr-operator/pull/324
+    - kind: added
+      description: Add support for using Solr Modules (contrib) and additional libraries
+      links:
+        - name: Github Issue
+          url: https://github.com/apache/solr-operator/issues/329
+        - name: Github PR
+          url: https://github.com/apache/solr-operator/pull/332
+        - name: Solr Modules
+          url: https://github.com/apache/solr/tree/main/solr/contrib
+    - kind: added
+      description: SolrBackups can now have a custom location specified to store the backup
+      links:
+        - name: Github PR
+          url: https://github.com/apache/solr-operator/pull/345
+    - kind: fixed
+      description: Fix for managed restarts across connected SolrCloud resources.
+      links:
+        - name: Github Issue
+          url: https://github.com/apache/solr-operator/issues/348
+        - name: Github PR
+          url: https://github.com/apache/solr-operator/pull/349
+    - kind: added
+      description: Ability to use topologySpreadConstraints for SolrCloud and SolrPrometheusExporter
+      links:
+        - name: Github Issue
+          url: https://github.com/apache/solr-operator/issues/53
+        - name: Github PR
+          url: https://github.com/apache/solr-operator/pull/350
+        - name: Topology Spread Constraints Documentation
+          url: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
+    - kind: added
+      description: Ability to bootstrap security configuration from a security.json in a user-supplied secret
+      links:
+        - name: Github Issue
+          url: https://github.com/apache/solr-operator/issues/355
+        - name: Github PR
+          url: https://github.com/apache/solr-operator/pull/356
+    - kind: added
+      description: Export default Solr Operator metrics, and enable when using the Helm chart
+      links:
+        - name: Github Issue
+          url: https://github.com/apache/solr-operator/issues/307
+        - name: Github PR
+          url: https://github.com/apache/solr-operator/pull/360
+    - kind: added
+      description: Ability to set the IngressClassName for v1 Ingress resources.
+      links:
+        - name: Github Issue (Ingress v1)
+          url: https://github.com/apache/solr-operator/issues/277
+        - name: Github PR
+          url: https://github.com/apache/solr-operator/pull/363
+    - kind: removed
+      description: Removed "persistence" option for SolrBackups. Instead please use the S3 or GCP Backup Repositories (Solr 8.9+)
+      links:
+        - name: Github Issue
+          url: https://github.com/apache/solr-operator/issues/347
+        - name: Github PR
+          url: https://github.com/apache/solr-operator/pull/357
+    - kind: added
+      description: Support for more Zookeeper Pod customization options
+      links:
+        - name: Github Issue
+          url: https://github.com/apache/solr-operator/issues/352
+        - name: Github PR
+          url: https://github.com/apache/solr-operator/pull/361
+    - kind: added
+      description: Separate SolrCloud backup ready status by backup repository
+      links:
+        - name: Github Issue
+          url: https://github.com/apache/solr-operator/issues/326
+        - name: Github PR
+          url: https://github.com/apache/solr-operator/pull/358
+    - kind: added
+      description: Scheduled/Recurring SolrBackup support
+      links:
+        - name: Github Issue
+          url: https://github.com/apache/solr-operator/issues/303
+        - name: Github PR
+          url: https://github.com/apache/solr-operator/pull/359
+        - name: SolrBackup Documentation
+          url: https://apache.github.io/solr-operator/docs/solr-backup#recurring-backups
+    - kind: changed
+      description: Solr Operator Leader Election enabled by default
+      links:
+        - name: Github Issue
+          url: https://github.com/apache/solr-operator/issues/366
+        - name: Github PR
+          url: https://github.com/apache/solr-operator/pull/367
+  artifacthub.io/containsSecurityUpdates: "false"
+  artifacthub.io/crds: |
+    - kind: SolrCloud
+      version: v1beta1
+      name: solrcloud.solr.apache.org
+      displayName: Solr Cloud
+      description: A distributed Solr Cloud cluster
+    - kind: SolrPrometheusExporter
+      version: v1beta1
+      name: solrprometheusexporter.solr.apache.org
+      displayName: Solr Prometheus Exporter
+      description: A Prometheus metrics exporter for Solr
+    - kind: SolrBackup
+      version: v1beta1
+      name: solrbackup.solr.apache.org
+      displayName: Solr Backup
+      description: A backup mechanism for Solr
+  artifacthub.io/crdsExamples: |
+    - apiVersion: solr.apache.org/v1beta1
+      kind: SolrCloud
+      metadata:
+        name: example
+      spec:
+        dataStorage:
+          persistent:
+            reclaimPolicy: Delete
+            pvcTemplate:
+              spec:
+                resources:
+                  requests:
+                    storage: "20Gi"
+        replicas: 3
+        solrImage:
+          tag: 8.7.0
+        solrJavaMem: "-Xms4g -Xmx4g"
+        customSolrKubeOptions:
+          podOptions:
+            resources:
+              requests:
+                memory: "6G"
+        zookeeperRef:
+          provided:
+            replicas: 3
+        solrOpts: "-Dsolr.autoSoftCommit.maxTime=10000"
+        solrGCTune: "-XX:SurvivorRatio=4 -XX:TargetSurvivorRatio=90 -XX:MaxTenuringThreshold=8"
+        backupRepositories:
+          - name: default-gcs
+            gcs:
+              bucket: solr-gcs-backups
+              gcsCredentialSecret: # Required
+                name: gcs-credentials
+                key: "service-account-key.json"
+              baseLocation: "/solrcloud/backups"
+          - name: default-s3
+            s3:
+              region: us-west-2
+              bucket: solr-s3-backups
+              credentials:
+                accessKeyIdSecret: # Optional
+                  name: aws-secrets
+                  key: access-key-id
+                secretAccessKeySecret: # Optional
+                  name: aws-secrets
+                  key: secret-access-key
+    - apiVersion: solr.apache.org/v1beta1
+      kind: SolrPrometheusExporter
+      metadata:
+        name: example
+      spec:
+        solrReference:
+          cloud:
+            name: "example"
+        numThreads: 4
+        image:
+          tag: 8.7.0
+    - apiVersion: solr.apache.org/v1beta1
+      kind: SolrPrometheusExporter
+      metadata:
+        name: example
+      spec:
+        solrReference:
+          cloud:
+            name: "example"
+        numThreads: 4
+        image:
+          tag: 8.7.0
+    - apiVersion: solr.apache.org/v1beta1
+      kind: SolrBackup
+      metadata:
+        name: example
+      spec:
+        repositoryName: solr-gcs-backups
+        solrCloud: example
+        collections:
+          - techproducts
+          - books
+        location: "/this/location"
+  artifacthub.io/images: |
+    - name: solr-operator
+      image: apache/solr-operator:v0.5.0
+  artifacthub.io/links: |
+    - name: "Tutorials"
+      url: https://solr.apache.org/operator/resources#tutorials
+  artifacthub.io/operator: "true"
+  artifacthub.io/operatorCapabilities: Full Lifecycle
+  artifacthub.io/prerelease: "false"
+  artifacthub.io/recommendations: |
+    - url: https://artifacthub.io/packages/helm/apache-solr/solr
+  artifacthub.io/signKey: |
+    fingerprint: 50E3EE1C91C7E0CB4DFB007B369424FC98F3F6EC
+    url: https://dist.apache.org/repos/dist/release/solr/KEYS
+apiVersion: v2
+appVersion: v0.5.0
+dependencies:
+- condition: zookeeper-operator.install
+  name: zookeeper-operator
+  repository: https://charts.pravega.io
+  version: 0.2.12
+description: The Solr Operator enables easy management of Solr resources within Kubernetes.
+home: https://solr.apache.org/operator
+icon: https://solr.apache.org/theme/images/identity/Solr_Logo_on_white.png
+keywords:
+- solr
+- apache
+- search
+- lucene
+- operator
+kubeVersion: '>= 1.19.0-0'
+maintainers:
+- email: dev@solr.apache.org
+  name: Solr Dev Community
+- email: houston@apache.org
+  name: Houston Putman
+name: solr-operator
+sources:
+- https://github.com/apache/solr-operator
+version: 0.5.0

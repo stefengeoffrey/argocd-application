@@ -1,0 +1,63 @@
+repos:
+- id: "github.com/XXXXXXXXXX/devops-infrastructure-admin"
+  workflow: terragrunt
+  apply_requirements: 
+    - approved
+    - mergeable
+  pre_workflow_hooks:
+    - run: "terragrunt-atlantis-config generate --output atlantis.yaml --autoplan --parallel --create-workspace"
+    # # Clean up any files left over from previous Infracost runs 
+    # - run: rm -rf /tmp/$BASE_REPO_OWNER-$BASE_REPO_NAME-$PULL_NUM
+    # - run: mkdir -p /tmp/$BASE_REPO_OWNER-$BASE_REPO_NAME-$PULL_NUM
+  post_workflow_hooks:
+    - run: |
+        # post_workflow_hooks are executed after the repo workflow has run.
+        # This enables you to post an Infracost comment with the combined cost output
+        # from all your projects. However, post_workflow_hooks are also triggered when
+        # an apply occurs. In order to stop commenting on PRs twice we need to check
+        # if the Infracost output directory created in our 'plan' stage exists before continuing.
+        if [ ! -d "/tmp/$BASE_REPO_OWNER-$BASE_REPO_NAME-$PULL_NUM" ]; then
+          exit 0
+        fi
+
+        # Choose the commenting behavior, 'new' is a good default:
+        # new: Create a new cost estimate comment on every run of Atlantis for each project.
+        # update: Create a single comment and update it. The "quietest" option.
+        # hide-and-new: Minimize previous comments and create a new one.
+        # delete-and-new: Delete previous comments and create a new one.
+        infracost comment github --repo $BASE_REPO_OWNER/$BASE_REPO_NAME \
+                                  --pull-request $PULL_NUM \
+                                  --path /tmp/$BASE_REPO_OWNER-$BASE_REPO_NAME-$PULL_NUM/'*'-infracost.json \
+                                  --github-token $GITHUB_TOKEN \
+                                  --behavior new
+
+        # remove the Infracost output directory so that `infracost comment` is not
+        # triggered on an `atlantis apply`
+        rm -rf /tmp/$BASE_REPO_OWNER-$BASE_REPO_NAME-$PULL_NUM
+workflows:
+  terragrunt:
+    plan:
+      steps:
+      - env:
+          name: INFRACOST_OUTPUT
+          command: 'echo "/tmp/$BASE_REPO_OWNER-$BASE_REPO_NAME-$PULL_NUM/${REPO_REL_DIR//\//-}-infracost.json"'
+      - env:
+          name: TERRAGRUNT_TFPATH
+          command: 'echo "terraform${ATLANTIS_TERRAFORM_VERSION}"'
+      - run: terragrunt plan -input=false -out=$PLANFILE
+      - run: terragrunt show -json $PLANFILE > $SHOWFILE
+      # Run Infracost breakdown and save to a tempfile, Namespacepaced by this project, PR, workspace and dir
+      - run: |
+          if [ ! -d "/tmp/$BASE_REPO_OWNER-$BASE_REPO_NAME-$PULL_NUM" ]; then
+            mkdir -p /tmp/$BASE_REPO_OWNER-$BASE_REPO_NAME-$PULL_NUM
+          fi
+          infracost breakdown --path=$SHOWFILE \
+                              --format=json \
+                              --log-level=info \
+                              --out-file=$INFRACOST_OUTPUT
+    apply:
+      steps:
+      - env:
+          name: TERRAGRUNT_TFPATH
+          command: 'echo "terraform${ATLANTIS_TERRAFORM_VERSION}"'
+      - run: terragrunt apply -input=false $PLANFILE

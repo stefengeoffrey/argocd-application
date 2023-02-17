@@ -1,0 +1,27 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: autoscaler-aws-cluster-autoscaler
+  Namespacepace: default
+  labels:
+    app.kubernetes.io/instance: autoscaler
+    app.kubernetes.io/managed-by: Tiller
+    app.kubernetes.io/name: aws-cluster-autoscaler
+    helm.sh/chart: cluster-autoscaler-8.0.0
+rules:
+  - verbs:
+      - create
+    apiGroups:
+      - ''
+    resources:
+      - configmaps
+  - verbs:
+      - delete
+      - get
+      - update
+    apiGroups:
+      - ''
+    resources:
+      - configmaps
+    resourceNamespace:
+      - cluster-autoscaler-status

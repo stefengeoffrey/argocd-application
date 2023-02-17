@@ -1,0 +1,21 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: clean-pods
+  Namespacepace: default
+  # annotations:
+  #   argocd.argoproj.io/hook: PreSync
+  #   argocd.argoproj.io/hook-delete-policy: HookSucceeded
+spec:
+  schedule: "0 02 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: clean-pods
+          imagePullSecrets:
+            - name: dockerreadonly
+          containers:
+          - name: clean-pods
+            image: clean_pods:latest
+          restartPolicy: OnFailure

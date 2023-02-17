@@ -1,0 +1,16 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: atlantis
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    external-dns.alpha.kubernetes.io/target: traefik.XXXXXXXXXX-tools.com
+spec:
+  rules:
+    - host: "atlantis.XXXXXXXXXX-tools.com"
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: atlantis
+              servicePort: atlantis

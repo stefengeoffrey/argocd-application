@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: dashboard
+  namespace: ""
+  labels:
+    environment: non-prod
+    team: devops
+spec:
+  project: devops
+  source:
+    path: manifests/devops/cloudwatch-agent/helm
+    repoURL: 'https://github.com/stefengeoffrey/B100-devops-argocd-k8-applications.git'
+    targetRevision: HEAD
+    helm:
+      valueFiles: [values-non-prod.yaml]
+      values: ''
+  destination:
+    name: in-cluster	# same as https://kubernetes.default.svc
+    namespace: default
+    server: ''
+  syncPolicy:
+    automated: {}

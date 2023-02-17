@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: external-dns-staging
+  labels:
+    team: devops
+    environment: non-prod
+spec:
+  project: devops
+  source:
+    path: manifests/devops/external-dns/overlays/non-prod
+    repoURL: 'https://github.com/stefengeoffrey/argocd-applications.git'
+    targetRevision: HEAD
+  destination:
+    namespace: default
+    server: 'https://kubernetes.default.svc'
+  syncPolicy:
+    automated: {}

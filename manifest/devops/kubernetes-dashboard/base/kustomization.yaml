@@ -1,0 +1,75 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- https://raw.githubusercontent.com/kubernetes/dashboard/v2.6.0/aio/deploy/recommended.yaml
+
+patchesJson6902:     
+- target: 
+    version: v1
+    kind: Service
+    name: kubernetes-dashboard
+  patch: |-
+    - op: replace
+      path: /spec/type
+      value: ClusterIP
+    - op: replace
+      path: /spec/ports/0
+      value: 
+        port: 443
+        name: https
+        protocol: TCP
+        targetPort: 8443
+    - op: add
+      path: /spec/ports/1
+      value: 
+        name: http
+        port: 80
+        protocol: TCP
+        targetPort: 9090
+- target: 
+    version: v1
+    kind: Deployment
+    name: kubernetes-dashboard
+  patch: |-
+    - op: replace
+      path: /spec/template/spec/containers/0/ports
+      value:
+        - name: http 
+          containerPort: 9090
+          protocol: TCP
+        - name: https
+          containerPort: 8443
+          protocol: TCP
+    - op: replace
+      path: /spec/template/spec/containers/0/args
+      value:
+        - --Namespacepace=kubernetes-dashboard
+    - op: replace
+      path: /spec/template/spec/containers/0/livenessProbe/httpGet/port
+      value: 9090
+    - op: replace
+      path: /spec/template/spec/containers/0/livenessProbe/httpGet/scheme
+      value: HTTP
+- target: 
+    version: v1
+    kind: ClusterRoleBinding
+    name: kubernetes-dashboard
+  patch: |-
+    - op: replace
+      path: /roleRef/name
+      value: cluster-admin
+- target: 
+    version: v1
+    kind: Deployment
+    name: kubernetes-dashboard
+  patch: |-
+    - op: remove
+      path: /spec/template/spec/securityContext
+- target: 
+    version: v1
+    kind: Deployment
+    name: dashboard-metrics-scraper
+  patch: |-
+    - op: remove
+      path: /spec/template/spec/securityContext

@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: coredns
+  labels:
+    team: devops
+    environment: non-prod
+spec:
+  project: devops
+  source:
+    path: manifests/devops/coredns/overlays/non-prod
+    repoURL: 'https://github.com/stefengeoffrey/B100-devops-argocd-k8-applications.git'
+    targetRevision: HEAD
+  destination:
+    namespace: kube-system
+    server: 'https://kubernetes.default.svc'
+  syncPolicy:
+    automated: {}

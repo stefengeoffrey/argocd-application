@@ -1,0 +1,78 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - https://raw.githubusercontent.com/coredns/deployment/coredns-1.14.0/kubernetes/coredns.yaml.sed
+  - serviceMonitor.yaml
+
+# Use EKS images
+images:
+  - name: coredns/coredns
+    newName: 602401143452.dkr.ecr.us-east-2.amazonaws.com/eks/coredns
+    newTag: v1.8.0-eksbuild.1
+
+patchesJson6902:
+# Override ConfigMap to an old one during migration to ArgoCD.
+- target: 
+    version: v1
+    kind: ConfigMap
+    name: coredns
+  patch: |-
+    - op: add
+      path: /data/Corefile
+      value: |
+        .:53 {
+            errors
+            health
+            kubernetes cluster.local in-addr.arpa ip6.arpa {
+              pods insecure
+              fallthrough in-addr.arpa ip6.arpa
+            }
+            prometheus :9153
+            forward . /etc/resolv.conf
+            cache 30
+            loop
+            reload
+            loadbalance
+        }
+- target:
+    version: v1
+    kind: Service
+    name: kube-dns
+  patch:  |-
+    - op: add
+      path: /spec/clusterIP 
+      value: 10.100.0.10
+- target:
+    version: v1
+    kind: ClusterRole
+    name: system:coredns
+  patch: |-
+    - op: add
+      path: /rules/-
+      value:
+        apiGroups:
+          - ''
+        resources:
+          - nodes
+        verbs:
+          - get
+- target:
+    version: v1
+    kind: Deployment
+    name: coredns
+  patch: |-
+    - op: add
+      path: /spec/template/spec/containers/0/readinessProbe
+      value:
+        failureThreshold: 3	
+        httpGet:	
+          path: /health	
+          port: 8080	
+          scheme: HTTP	
+        periodSeconds: 10	
+        successThreshold: 1	
+        timeoutSeconds: 1
+    - op: add
+      path: /spec/replicas
+      value: 2

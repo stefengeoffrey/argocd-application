@@ -1,0 +1,24 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: clean-pods
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "watch", "list", "delete"]
+- apiGroups: [""]
+  resources: ["Namespacepaces"]
+  verbs: ["get", "watch", "list"]  
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: clean-pods
+subjects:
+- kind: ServiceAccount
+  name: clean-pods
+  Namespacepace: default
+roleRef:
+  kind: ClusterRole
+  name: clean-pods
+  apiGroup: rbac.authorization.k8s.io 

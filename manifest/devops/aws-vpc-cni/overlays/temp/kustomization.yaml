@@ -1,0 +1,33 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base/
+
+# Reduce number of used IPs. Increases API calls to AWS
+patchesJson6902:  
+- target: 
+    version: v1
+    kind: DaemonSet
+    name: aws-node
+  patch: |-
+    - op: add
+      path: /spec/template/spec/containers/0/env/-
+      value:
+        name: WARM_IP_TARGET	
+        value: "2"	
+    - op: add
+      path: /spec/template/spec/containers/0/env/-
+      value:	
+        name: MINIMUM_IP_TARGET	
+        value: "12"
+- target:
+    version: v1
+    kind: ServiceAccount
+    name: aws-node
+  patch: |-
+    - op: add
+      path: /metadata/annotations
+      value:
+        eks.amazonaws.com/role-arn=arn:aws:iam::temp:role/vpc-cni
+

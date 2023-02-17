@@ -1,0 +1,89 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: eks:kube-proxy
+  labels:
+    eks.amazonaws.com/component: kube-proxy
+    k8s-app: kube-proxy
+subjects:
+  - kind: ServiceAccount
+    name: kube-proxy
+    Namespacepace: kube-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:node-proxier
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: system:node-proxier
+  labels:
+    kubernetes.io/bootstrapping: rbac-defaults
+  annotations:
+    rbac.authorization.kubernetes.io/autoupdate: 'true'
+rules:
+  - verbs:
+      - list
+      - watch
+    apiGroups:
+      - ''
+    resources:
+      - endpoints
+      - services
+  - verbs:
+      - get
+    apiGroups:
+      - ''
+    resources:
+      - nodes
+  - verbs:
+      - create
+      - patch
+      - update
+    apiGroups:
+      - ''
+    resources:
+      - events
+  - verbs:
+      - create
+    apiGroups:
+      - events.k8s.io
+    resources:
+      - events
+  - verbs:
+      - patch
+    apiGroups:
+      - events.k8s.io
+    resources:
+      - events
+  - verbs:
+      - update
+    apiGroups:
+      - events.k8s.io
+    resources:
+      - events
+  - verbs:
+      - list
+    apiGroups:
+      - ''
+    resources:
+      - nodes
+  - verbs:
+      - watch
+    apiGroups:
+      - ''
+    resources:
+      - nodes
+  - verbs:
+      - list
+    apiGroups:
+      - discovery.k8s.io
+    resources:
+      - endpointslices
+  - verbs:
+      - watch
+    apiGroups:
+      - discovery.k8s.io
+    resources:
+      - endpointslices

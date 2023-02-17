@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: hello-world-app
+  labels:
+    team: devops
+    environment: non-prod
+spec:
+  project: devops
+  source:
+    path: manifests/devops/helloworldapp
+    repoURL: 'https://github.com/stefengeoffrey/B100-devops-argocd-k8-applications.git'
+    targetRevision: HEAD
+  destination:
+    namespace: default
+    server: 'https://kubernetes.default.svc'
+  syncPolicy:
+    automated: {}

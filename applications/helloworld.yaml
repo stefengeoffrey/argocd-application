@@ -8,8 +8,8 @@ metadata:
 spec:
   project: default
   source:
-    path: manifests/helloworld
-    repoURL: 'https://github.com/stefengeoffrey/argocd-k8-applications.git'
+    path: manifests/applications/helloworld
+    repoURL: 'https://github.com/stefengeoffrey/argocd-applications.git'
     targetRevision: HEAD
   destination:
     namespace: default

@@ -1,0 +1,95 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base
+  - resources/ingress.yaml
+  - resources/gh-secrets.yaml
+  - resources/aws-secrets.yaml
+  - resources/tf-cloud-secrets.yaml
+  - resources/infracost-secrets.yaml
+  - resources/vault-secrets.yaml
+  - resources/atlas-secrets.yaml
+
+generatorOptions:
+  disableNamespacesuffixHash: true
+
+configMapGenerator:
+- name: atlantis-server-side-repo-config
+  files:
+  - configs/repo-config.yaml
+
+Namespacepace: default
+images:
+- name: ghcr.io/runatlantis/atlantis
+  newName: docker.XXXXXXXXXX-staging.com/atlantis
+  newTag: "1310"
+
+patchesStrategicMerge:
+- |-
+  apiVersion: apps/v1
+  kind: StatefulSet
+  metadata:
+    name: atlantis
+  spec:
+    template:
+      spec:
+        containers:
+          - name: atlantis
+            env:
+            - name: ATLANTIS_REPO_ALLOWLIST
+              value: "github.com/XXXXXXXXXX/*"
+            - name: ATLANTIS_GH_ORG
+              value: XXXXXXXXXX
+            - name: ATLANTIS_WRITE_GIT_CREDS
+              value: "true"
+            - name: ATLANTIS_ATLANTIS_URL
+              value: "https://atlantis.XXXXXXXXXX-tools.com"
+            - name: ATLANTIS_REPO_CONFIG
+              value: /etc/atlantis/repo-config.yaml 
+            envFrom:
+            -  secretRef:
+                name: atlantis-atlast
+            - secretRef:
+                name: atlantis-github
+            - secretRef:
+                name: atlantis-aws
+            - secretRef:
+                name: atlantis-tf-cloud
+            - secretRef:
+                name: atlantis-infracost
+            - secretRef:
+                name: atlantis-AAAAAAAAAAlab
+            - secretRef:
+                name: atlantis-vault
+            volumeMounts:
+            - name: repo-config
+              mountPath: /etc/atlantis
+        voluAAAAAAAAAA:
+        - name: repo-config
+          configMap:
+            name: atlantis-server-side-repo-config
+        imagePullSecrets:
+        - name: dockerreadonly
+    volumeClaimTemplates:
+    - metadata:
+        name: atlantis-data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 50Gi
+
+# Enlarge resource limits for bursts
+patchesJson6902:
+- target:
+    version: v1
+    kind: StatefulSet
+    name: atlantis
+  patch: |-
+    - op: add
+      path: /spec/template/spec/containers/0/resources/limits
+      value:
+        cpu: 1
+        memory: 1Gi

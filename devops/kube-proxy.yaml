@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kube-proxy
+  labels:
+    team: devops
+    environment: non-prod
+spec:
+  destination:
+    name: in-cluster
+    namespace: 'kube-system'
+  source:
+    path: manifests/devops/kube-proxy/overlays/staging
+    repoURL: 'https://github.com/stefengeoffrey/B100-devops-argocd-k8-applications.git'
+    targetRevision: HEAD
+  project: devops
+  syncPolicy:
+    automated: {}

@@ -1,0 +1,40 @@
+#apiVersion: cert-manager.io/v1
+#kind: ClusterIssuer
+#metadata:
+#  name: letsencrypt
+#spec:
+#  acme:
+#    email: geoffreyscarvell@gmail.com.com
+#    server: https://acme-staging-v02.api.letsencrypt.org/directory
+#    privateKeySecretRef:
+#      name: letsencrypt-non-prod
+#    solvers:
+#    - selector:
+#        dnsZones:
+#        - 'geoff-example.com'
+#      dns01:
+#        route53:
+#          region: us-east-1
+#          hostedZoneID: Z089021824US5ZGHYN5UC # optional, see policy above
+#          role: arn:aws:iam::019766467906:role/non-prod-cert_manager-irsa
+#
+#
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt
+spec:
+  acme:
+    email: geoffreyscarvell@gmail.com
+    privateKeySecretRef:
+      name: letsencrypt
+    server: https://acme-v02.api.letsencrypt.org/directory
+    solvers:
+      - dns01:
+          route53:
+            accessKeyID: AKIAQJGRMLVBEB2OHR6F
+            region: us-east-1
+            hostedZoneID: Z089021824US5ZGHYN5UC
+            #secretAccessKeySecretRef:
+            #  name: non-prod-route53-credentials-secret
+            #  key: secret-access-key

@@ -1,0 +1,21 @@
+apiVersion: external-secrets.io/v1alpha1
+kind: ExternalSecret
+metadata:
+  name: AAAAAAAAAA-amber-vault-crd
+spec:
+  refreshInterval: 1m0s
+  secretStoreRef:
+    name: aws-backend
+    kind: ClusterSecretStore
+  target:
+    name: AAAAAAAAAA-amber-vault-crd
+    creationPolicy: Owner
+  data:
+    - remoteRef:
+        key: AAAAAAAAAA/amber/vault
+        property: username
+      secretKey: VAULT_USER
+    - remoteRef:
+        key: AAAAAAAAAA/amber/vault
+        property: password
+      secretKey: VAULT_PASSWORD
