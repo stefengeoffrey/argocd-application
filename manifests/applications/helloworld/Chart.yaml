@@ -1,5 +1,0 @@
-apiVersion: v2
-description: Hello world
-type: application
-version: 1.0.0
-name: helloworld

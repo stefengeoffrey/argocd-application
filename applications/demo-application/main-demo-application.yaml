@@ -1,16 +1,17 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: helloworld
+  name: demo
   labels:
-    team: devops
     environment: demo
 spec:
   project: default
   source:
-    path: manifests/applications/helloworld
-    repoURL: 'https://github.com/stefengeoffrey/argocd-applications.git'
+    path: charts/helm-demo
+    repoURL: 'https://github.com/stefengeoffrey/demo-application.git'
     targetRevision: HEAD
+    helm:
+      valueFiles: [values.yaml]
   destination:
     namespace: default
     server: 'https://kubernetes.default.svc'
