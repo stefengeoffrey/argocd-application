@@ -13,7 +13,7 @@ spec:
     path: manifests/devops/nginx-ingress/overlays/non-prod
     repoURL: 'https://github.com/stefengeoffrey/argocd-applications.git'
     targetRevision: HEAD
-  project: default
+  project:  devops
   syncPolicy:
     automated: {}
 

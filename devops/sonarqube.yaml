@@ -1,13 +1,13 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: dashboard
+  name: sonarqube
   namespace: ""
   labels:
     environment: non-prod
     team: devops
 spec:
-  project: default
+  project: devops
   source:
     path: manifests/devops/sonarqube/helm
     repoURL: 'https://github.com/stefengeoffrey/argocd-applications.git'

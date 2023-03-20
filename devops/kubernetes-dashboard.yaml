@@ -7,7 +7,7 @@ metadata:
     environment: non-prod
     team: devops
 spec:
-  project: default
+  project: devops
   source:
     path: manifests/devops/kubernetes-dashboard/helm
     repoURL: 'https://github.com/stefengeoffrey/argocd-applications.git'
