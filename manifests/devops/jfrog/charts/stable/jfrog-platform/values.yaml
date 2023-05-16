@@ -1,0 +1,290 @@
+# Default values for jfrog-platform
+
+# nameOverride:
+# fullnameOverride:
+
+# If this is an upgrade over an existing platform chart(>= 10.0.0), explicitly pass 'gaUpgradeReady=true' to upgrade
+gaUpgradeReady: false
+
+global:
+  # imagePullSecrets:
+  #   - myRegistryKeySecretName
+  imageRegistry: releases-docker.jfrog.io
+  jfrogUrl: '{{ include "jfrog-platform.jfrogUrl" . }}'
+  ## Artifactory UI URL - Mandatory
+  ## Update jfrogUrlUI before running builds on Pipelines
+  ## This must be the external URL of Artifactory that any service (such as scm provider) and buildnodes
+  ## that you're using can access, for example: https://artifactory.example.com
+  ## This is a test url and must be changed before running any builds
+  jfrogUrlUI: http://my.artifactory.instance.com
+  joinKey: EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
+  masterKey: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+  ## Chart.AppVersion for each product can be overidden using global.versions.<product>
+  ## For example : For artifactory, using global.versions.artifactory
+  ## Note: Order of preference is 1) global.versions 2) .Values.artifactory.image.tag 3) Chart.AppVersion
+  versions:
+    router: 7.61.2
+  #   artifactory:
+  #   xray:
+  #   distribution:
+  #   insight:
+  #   pipelines:
+  #   pdnServer:
+  database:
+    host: "{{ .Release.Name }}-postgresql"
+    port: 5432
+    sslMode: disable
+    adminUsername: postgres
+    adminPassword: postgres
+    secrets: {}
+      # adminUsername:
+      #   name: "jp-database-creds"
+      #   key: "db-admin-user"
+      # adminPassword:
+      #   name: "jp-database-creds"
+      #   key: "db-admin-password"
+    initContainerSetupDBImage: releases-docker.jfrog.io/postgres:13.10-alpine
+    # Run the postgres init container as a non-default uid
+    initContainerSetupDBUser:
+    initContainerImagePullPolicy: Always
+    # If you are using external postgresql, set initDBCreation: false
+    initDBCreation: true
+  ## certificates added to this secret will be copied to $JFROG_HOME/<product>/var/etc/security/keys/trusted directory
+  customCertificates:
+    enabled: false
+    # certificateSecretName:
+
+  customInitContainersBegin: |
+    {{ template "initdb" . }}
+  customVolumes: |
+    {{ template "initdb-volume" . }}
+
+## This Postgresql is used by all products , set postgresql.enabled: false, when you want to use external postgresql for all products
+postgresql:
+  enabled: true
+  image:
+    repository: bitnami/postgresql
+    tag: 13.10.0-debian-11-r14
+  postgresqlUsername: postgres
+  postgresqlPassword: postgres
+  postgresqlExtendedConf:
+    max_connections: 1000
+    max_wal_size: 1000MB
+  persistence:
+    size: 500Gi
+
+## This Rabbitmq is used by Xray and Pipelines only, set rabbitmq.enabled: false, when Xray or Pipelines is not enabled
+rabbitmq:
+  enabled: true
+  ## Enable the flag if the feature flags in rabbitmq is enabled manually
+  rabbitmqUpgradeReady: false
+  image:
+    repository: bitnami/rabbitmq
+    tag: 3.11.10-debian-11-r5
+  auth:
+    username: admin
+    password: password
+    erlangCookie: secretcookie
+  ## To support upgrade from 3.8.x to 3.11.x , featureFlags are needed
+  ## ref: https://blog.rabbitmq.com/posts/2022/07/required-feature-flags-in-rabbitmq-3.11/
+  featureFlags: drop_unroutable_metric,empty_basic_get_metric,implicit_default_bindings,maintenance_mode_status,quorum_queue,stream_queue,user_limits,virtual_host_metadata
+  maxAvailableSchedulers: null
+  onlineSchedulers: null
+  persistence:
+    size: 50Gi
+  extraEnvVars:
+    - name: RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS
+      value: "+S 2:2 +sbwt none +sbwtdcpu none +sbwtdio none"
+  extraSecretsPrependReleaseName: true
+  extraSecrets:
+    load-definition:
+      load_definition.json: |
+        {
+          "vhosts": [
+            {
+              "name": "xray"
+            }
+          ],
+          "users": [
+            {
+              "name": "{{ .Values.auth.username }}",
+              "password": "{{ .Values.auth.password }}",
+              "tags": "administrator"
+            }
+          ],
+          "permissions": [
+          {
+            "user": "admin",
+            "vhost": "xray",
+            "configure": ".*",
+            "write": ".*",
+            "read": ".*"
+          }
+          ],
+          "policies": [
+            {
+              "name": "ha-all",
+              "apply-to": "all",
+              "pattern": ".*",
+              "vhost": "xray",
+              "definition": {
+                "ha-mode": "all",
+                "ha-sync-mode": "automatic"
+              }
+            }
+          ]
+        }
+  loadDefinition:
+    enabled: true
+    existingSecret: '{{ .Release.Name }}-load-definition'
+  ## Upgrade of rabbitmq from 3.8.x to 3.11.x needs the feature flags to be enabled.
+  ## Ref: (https://blog.rabbitmq.com/posts/2022/07/required-feature-flags-in-rabbitmq-3.11/
+  ## migration enable will perform `rabbitmqctl enable_feature_flag all` command on the existing rabbitmq before starting the upgrade
+  migration:
+    ## Migration is required to be performed only once hence this option can be disabled once the feature flags are enabled in rabbitmq.
+    enabled: true
+    ## Service account for the pre-upgrade hook to perform rabbitmq migration
+    serviceAccount:
+      create: true
+      ## The name of the ServiceAccount to use.
+      ## If not set and create is true, a name is generated using the fullname template
+      name:
+      ## Explicitly mounts the API credentials for the Service Account
+      automountServiceAccountToken: true
+      rbac:
+        create: true
+        role:
+          ## Rules to create. It follows the role specification
+          rules:
+            - apiGroups:
+                - ""
+              resources:
+                - pods/exec
+                - pods
+              verbs:
+                - create
+                - get
+
+## This Redis is used by pipelines only, set redis.enabled: false, when pipelines is not enabled
+redis:
+  enabled: true
+  image:
+    repository: bitnami/redis
+    tag: 7.0.9-debian-11-r6
+  cluster:
+    enabled: false
+  usePassword: false
+
+artifactory:
+  installerInfo: '{"productId": "Helm_JFrogPlatform/{{ printf "10.12.2-%s" .Chart.AppVersion  }}", "features": [ { "featureId": "Platform/{{ printf "%s-%s" "kubernetes" .Capabilities.KubeVersion.Version }}"}]}'
+  enabled: true
+  postgresql:
+    enabled: false
+  waitForDatabase: false
+  database:
+    type: postgresql
+    driver: org.postgresql.Driver
+    url: '{{ include "database.url" . }}'
+    user: artifactory
+    password: artifactory
+  # Note: For artifactory Pro license, mission-control is not supported, Hence, set mc.enabled: false
+  mc:
+    enabled: true
+  artifactory:
+    # Note: For HA deployments, set replicaCount >1 (recommended 3)
+    replicaCount: 1
+    migration:
+      enabled: false
+    persistence:
+      size: 200Gi
+    # license:
+    #   secret:
+    #   dataKey:
+
+xray:
+  enabled: true
+  unifiedUpgradeAllowed: true
+  postgresql:
+    enabled: false
+  database:
+    url: '{{ include "database.url" . }}'
+    user: xray
+    password: xray
+  common:
+    persistence:
+      size: 200Gi
+    rabbitmq:
+      connectionConfigFromEnvironment: false
+    extraEnvVars: |
+      - name: "JF_SHARED_RABBITMQ_VHOST"
+        value: "xray"
+  rabbitmq:
+    enabled: false
+    external:
+      username: admin
+      password: password
+      url: "amqp://{{ .Release.Name }}-rabbitmq:5672"
+      erlangCookie: secretcookie
+
+distribution:
+  enabled: true
+  unifiedUpgradeAllowed: true
+  postgresql:
+    enabled: false
+  image:
+    tag: 7.0.9-debian-11-r6
+  database:
+    url: '{{ include "database.url" . }}'
+    user: distribution
+    password: distribution
+
+insight:
+  enabled: true
+  unifiedUpgradeAllowed: true
+  postgresql:
+    enabled: false
+  database:
+    url: '{{ include "database.url" . }}'
+    user: insight
+    password: insight
+    name: '{{ include "database.name" . }}'
+  elasticsearch:
+    javaOpts:
+      xms: "2g"
+      xmx: "2g"
+
+pipelines:
+  enabled: true
+  unifiedUpgradeAllowed: true
+  postgresql:
+    enabled: false
+  global:
+    postgresql:
+      host: "{{ .Release.Name }}-postgresql"
+      port: 5432
+      database: "pipelinesdb"
+      user: "apiuser"
+      password: "pipeline"
+  pipelines:
+    msg:
+      uiUserPassword: password
+  redis:
+    enabled: false
+  rabbitmq:
+    enabled: false
+    internal_ip: "{{ .Release.Name }}-rabbitmq"
+    msg_hostname: "{{ .Release.Name }}-rabbitmq"
+    port: 5672
+    manager_port: 15672
+    ms_username: admin
+    ms_password: password
+    cp_username: admin
+    cp_password: password
+    root_vhost_exchange_name: rootvhost
+    erlang_cookie: secretcookie
+    build_vhost_name: pipelines
+    root_vhost_name: pipelinesRoot
+    protocol: amqp
+
+pdnServer:
+  enabled: false

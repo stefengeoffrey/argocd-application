@@ -1,0 +1,8 @@
+remote: origin
+target-branch: master
+chart-dirs:
+  - stable
+chart-repos:
+  - jfrog=https://charts.jfrog.io
+helm-extra-args: 
+  --timeout 20m
