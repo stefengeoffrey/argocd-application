@@ -9,16 +9,12 @@ metadata:
 spec:
   project: default
   source:
-    path: manifests/devops/artifactory-oss/charts
+    path: manifests/devops/artifactory-oss/overlays/IL4
     repoURL: 'https://github.com/stefengeoffrey/argocd-manifests.git'
     targetRevision: HEAD
-    helm:
-      valueFiles: [values.yaml]
-      values: ''
   destination:
     name: in-cluster	# same as https://kubernetes.default.svc
     namespace: artifactory-oss
     server: ''
   syncPolicy:
     automated: {}
-
