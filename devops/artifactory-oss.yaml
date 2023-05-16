@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: dashboard
+  name: artifactory-oss
   namespace: ""
   labels:
     environment: non-prod
@@ -9,15 +9,16 @@ metadata:
 spec:
   project: default
   source:
-    path: manifests/devops/artifactory-oss/helm
+   # path: manifests/devops/artifactory-oss/helm
+    path: manifests/devops/jfrog/charts/stable/artifactory-oss
     repoURL: 'https://github.com/stefengeoffrey/argocd-applications.git'
     targetRevision: HEAD
     helm:
-      valueFiles: [values-non-prod.yaml]
+      valueFiles: [values.yaml]
       values: ''
   destination:
     name: in-cluster	# same as https://kubernetes.default.svc
-    namespace: default
+    namespace: artifactory-oss
     server: ''
   syncPolicy:
     automated: {}
