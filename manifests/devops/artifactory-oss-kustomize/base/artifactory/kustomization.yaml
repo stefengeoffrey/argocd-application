@@ -8,6 +8,7 @@ resources:
   - artifactory-migration-scripts.yaml
   - artifactory-secrets.yaml
   - artifactory-service.yaml
+  - artifactory-pvc.yaml
   - artifactory-statefulset.yaml
   - artifactory-system-yaml.yaml
   - nginx-artifactory-conf.yaml
