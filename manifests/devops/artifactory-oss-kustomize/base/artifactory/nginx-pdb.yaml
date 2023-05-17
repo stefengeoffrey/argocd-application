@@ -1,0 +1,19 @@
+---
+# Source: artifactory-oss/charts/artifactory/templates/nginx-pdb.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: artifactory-oss-artifactory-nginx
+  labels:
+    app: artifactory
+    chart: artifactory-107.55.13
+    component: nginx
+    heritage: Helm
+    release: artifactory-oss
+spec:
+  selector:
+    matchLabels:
+      component: nginx
+      app: artifactory
+      release: artifactory-oss
+  minAvailable: 0
