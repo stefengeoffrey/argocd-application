@@ -50,4 +50,4 @@ stringData:
       database:
         maxOpenConnections: 80
     jfconnect:
-      enabled: false
+      enabled: true
