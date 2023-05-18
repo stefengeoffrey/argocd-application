@@ -30,7 +30,7 @@ spec:
         component: artifactory
         release: artifactory-oss
       annotations:
-        checksum/database-secrets: 16dcb10f5cde454b310de35d51a9dccc90cc63cbb4cc5813aef4b1b57eec8c64
+        checksum/database-secrets: 14d1292fae1b199f8ae24ce02582cbbeafda9a21fa78d4e3f1d6e5c07ca8fdaf
         checksum/binarystore: 693299b224cedcb0f80d5209a037f26050fbefec2b7ae38d7696f8407c87f6f0
         checksum/systemyaml: 13bbf5d42752fabac3da438eb6a159ab13cf8c165baa0870dec2213f74be2bd9
         checksum/access-config: 2dcc3529bf71c2c7011e6a767a195edeb4c87c612ed30118da283c1e0a4f551b
