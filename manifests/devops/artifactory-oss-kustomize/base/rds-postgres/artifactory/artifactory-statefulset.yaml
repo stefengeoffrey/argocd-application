@@ -30,9 +30,9 @@ spec:
         component: artifactory
         release: artifactory-oss
       annotations:
-        checksum/database-secrets: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
+        checksum/database-secrets: 14d1292fae1b199f8ae24ce02582cbbeafda9a21fa78d4e3f1d6e5c07ca8fdaf
         checksum/binarystore: 693299b224cedcb0f80d5209a037f26050fbefec2b7ae38d7696f8407c87f6f0
-        checksum/systemyaml: 9328c0d080e7b33a2a7e372f64d2f670384e60fd76dd1e72302e393c9e77adc6
+        checksum/systemyaml: 13bbf5d42752fabac3da438eb6a159ab13cf8c165baa0870dec2213f74be2bd9
         checksum/access-config: 2dcc3529bf71c2c7011e6a767a195edeb4c87c612ed30118da283c1e0a4f551b
         checksum/admin-creds: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
     spec:
@@ -133,31 +133,6 @@ spec:
         - name: access-config
           mountPath: "/tmp/etc/access.config.patch.yml"
           subPath: "access.config.patch.yml"
-      - name: "wait-for-db"
-        image: "releases-docker.jfrog.io/ubi9/ubi-minimal:9.1.0.1760"
-        securityContext:
-          runAsNonRoot: true
-          allowPrivilegeEscalation: false
-          capabilities:
-            drop:
-              - NET_RAW
-        resources:
-          limits:
-            cpu: "1"
-            memory: 1Gi
-          requests:
-            cpu: 10m
-            memory: 50Mi
-        command:
-        - /bin/bash
-        - -c
-        - |
-          echo "Waiting for postgresql to come up"
-          ready=false;
-          while ! $ready; do echo waiting;
-            timeout 2s bash -c "</dev/tcp/artifactory-oss-postgresql/5432"; exit_status=$?;
-            if [[ $exit_status -eq 0 ]]; then ready=true; echo "database ok"; fi; sleep 1;
-          done
       - name: 'migration-artifactory'
         image: releases-docker.jfrog.io/jfrog/artifactory-oss:7.55.13
         imagePullPolicy: IfNotPresent
@@ -184,8 +159,13 @@ spec:
         - name: JF_SHARED_DATABASE_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: artifactory-oss-postgresql
-              key: postgresql-password
+              name: artifactory-oss-database-creds
+              key: db-password
+        - name: JF_SHARED_DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: artifactory-oss-database-creds
+              key: db-url
         volumeMounts:
         - name: migration-scripts
           mountPath: "/tmp/migrate.sh"
@@ -226,8 +206,13 @@ spec:
         - name: JF_SHARED_DATABASE_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: artifactory-oss-postgresql
-              key: postgresql-password
+              name: artifactory-oss-database-creds
+              key: db-password
+        - name: JF_SHARED_DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: artifactory-oss-database-creds
+              key: db-url
         ports:
         - containerPort: 8082
           name: http

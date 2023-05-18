@@ -4,7 +4,6 @@ namespace: artifactory-oss
 resources:
   - artifactory-access-config.yaml
   - artifactory-binarystore-secret.yaml
-  - artifactory-database-secrets.yaml
   - artifactory-installer-info.yaml
   - artifactory-migration-scripts.yaml
   - artifactory-secrets.yaml
