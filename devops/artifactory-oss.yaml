@@ -9,7 +9,7 @@ metadata:
 spec:
   project: default
   source:
-    path: manifests/devops/artifactory-oss-kustomize/overlays/IL4-with-RDS-postgres
+    path: manifests/devops/artifactory-oss-kustomize/overlays/IL4
     repoURL: 'https://github.com/stefengeoffrey/argocd-manifests.git'
     targetRevision: HEAD
   destination:
