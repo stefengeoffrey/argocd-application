@@ -23,8 +23,8 @@ stringData:
         -Dartifactory.graceful.shutdown.max.request.duration.millis=0
         -Dartifactory.access.client.max.connections=50
       database:
-        type: "mysql"
-        driver: "com.mysql.jdbc.Driver"
+        type: "postgresql"
+        driver: "org.postgresql.Driver"
     artifactory:
       database:
         maxOpenConnections: 80
