@@ -23,8 +23,8 @@ stringData:
         -Dartifactory.graceful.shutdown.max.request.duration.millis=0
         -Dartifactory.access.client.max.connections=50
       database:
-        type: "postgresql"
-        driver: "org.postgresql.Driver"
+        type: "mysql"
+        driver: "com.mysql.jdbc.Driver"
     artifactory:
       database:
         maxOpenConnections: 80
@@ -41,12 +41,6 @@ stringData:
     access:
       database:
         maxOpenConnections: 80
-      #  type: postgresql
-      #  driver: org.postgresql.Driver
-      #  url: "jdbc:postgresql://test.czsxingqdhyn.us-east-1.rds.amazonaws.com:5432/test"
-      #  username: postgres
-      #  password: testtest
-      #  actualUsername: postgres
       tomcat:
         connector:
           maxThreads: 50

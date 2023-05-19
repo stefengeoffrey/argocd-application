@@ -30,9 +30,9 @@ spec:
         component: artifactory
         release: artifactory-oss
       annotations:
-        checksum/database-secrets: 14d1292fae1b199f8ae24ce02582cbbeafda9a21fa78d4e3f1d6e5c07ca8fdaf
+        checksum/database-secrets: ea4c2a4e4afb02651d51d734a8aff7e7f8d73c4621bc12b2df98e75f46d38c3f
         checksum/binarystore: 693299b224cedcb0f80d5209a037f26050fbefec2b7ae38d7696f8407c87f6f0
-        checksum/systemyaml: 13bbf5d42752fabac3da438eb6a159ab13cf8c165baa0870dec2213f74be2bd9
+        checksum/systemyaml: 73b2e191b084c7b370161a15ed512abc8668a2a1d1d2750caf8cfab676a7e185
         checksum/access-config: 2dcc3529bf71c2c7011e6a767a195edeb4c87c612ed30118da283c1e0a4f551b
         checksum/admin-creds: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
     spec:
@@ -134,7 +134,7 @@ spec:
           mountPath: "/tmp/etc/access.config.patch.yml"
           subPath: "access.config.patch.yml"
       - name: 'migration-artifactory'
-        image: releases-docker.jfrog.io/jfrog/artifactory-oss:7.55.13
+        image: releases-docker.jfrog.io/jfrog/artifactory-pro:7.55.13
         imagePullPolicy: IfNotPresent
         securityContext:
           runAsNonRoot: true
@@ -155,6 +155,11 @@ spec:
           mkdir -p /var/opt/jfrog/artifactory/log;
           bash $scriptsPath/migrationStatus.sh 7.55.13 3600 > >(tee /var/opt/jfrog/artifactory/log/helm-migration.log) 2>&1;
         env:
+        - name: JF_SHARED_DATABASE_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: artifactory-oss-database-creds
+              key: db-user
       
         - name: JF_SHARED_DATABASE_PASSWORD
           valueFrom:
@@ -183,7 +188,7 @@ spec:
           subPath: "binarystore.xml"
       containers:
       - name: artifactory
-        image: releases-docker.jfrog.io/jfrog/artifactory-oss:7.55.13
+        image: releases-docker.jfrog.io/jfrog/artifactory-pro:7.55.13
         imagePullPolicy: IfNotPresent
         securityContext:
           runAsNonRoot: true
@@ -200,8 +205,15 @@ spec:
             echo "Copying bootstrap config from /artifactory_extra_conf to /artifactory_bootstrap";
             cp -Lrfv /artifactory_extra_conf/ /artifactory_bootstrap/;
           fi;
+          echo "Running custom preStartCommand command";
+          mkdir -p /opt/jfrog/artifactory/var/bootstrap/artifactory/tomcat/lib; cd /opt/jfrog/artifactory/var/bootstrap/artifactory/tomcat/lib && curl https://repo1.maven.org/maven2/mysql/mysql-connector-java/5.1.41/mysql-connector-java-5.1.41.jar -o /opt/jfrog/artifactory/var/bootstrap/artifactory/tomcat/lib/mysql-connector-java-5.1.41.jar; chmod 777 mysql-connector-java-5.1.41.jar;
           exec /entrypoint-artifactory.sh
         env:
+        - name: JF_SHARED_DATABASE_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: artifactory-oss-database-creds
+              key: db-user
       
         - name: JF_SHARED_DATABASE_PASSWORD
           valueFrom:
